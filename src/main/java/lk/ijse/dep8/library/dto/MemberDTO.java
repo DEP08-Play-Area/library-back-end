@@ -1,9 +1,14 @@
 package lk.ijse.dep8.library.dto;
 
-public class MemberDTO {
+import javax.sql.DataSource;
+import java.io.Serializable;
+
+public class MemberDTO implements Serializable {
     private String nic;
     private String name;
     private String contact;
+
+
 
     public MemberDTO(String nic, String name, String contact) {
         this.nic = nic;
@@ -36,5 +41,14 @@ public class MemberDTO {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    @Override
+    public String toString() {
+        return "MemberDTO{" +
+                "nic='" + nic + '\'' +
+                ", name='" + name + '\'' +
+                ", contact='" + contact + '\'' +
+                '}';
     }
 }
