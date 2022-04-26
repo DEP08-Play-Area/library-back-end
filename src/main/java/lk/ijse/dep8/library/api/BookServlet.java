@@ -99,4 +99,9 @@ public class BookServlet extends HttpServlet {
             res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doSaveOrUpdate(request,response);
+    }
 }
