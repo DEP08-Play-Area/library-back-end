@@ -7,6 +7,8 @@ public class BookDTO implements Serializable {
     private String name;
     private String author;
 
+    private byte[] preview;
+
 
     public BookDTO() {
     }
@@ -15,6 +17,13 @@ public class BookDTO implements Serializable {
         this.isbn = isbn;
         this.name = name;
         this.author = author;
+    }
+
+    public BookDTO(String isbn, String name, String author, byte[] preview) {
+        this.isbn = isbn;
+        this.name = name;
+        this.author = author;
+        this.preview = preview;
     }
 
     public String getIsbn() {
@@ -48,5 +57,13 @@ public class BookDTO implements Serializable {
                 ", name='" + name + '\'' +
                 ", author='" + author + '\'' +
                 '}';
+    }
+
+    public byte[] getPreview() {
+        return preview;
+    }
+
+    public void setPreview(byte[] preview) {
+        this.preview = preview;
     }
 }

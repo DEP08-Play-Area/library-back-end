@@ -107,8 +107,8 @@ public class MemberServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
 
         if (method.equals("POST") &&
-                !((req.getServletPath().equalsIgnoreCase("/members") ||
-                        req.getServletPath().equalsIgnoreCase("/members/")))) {
+                !((req.getRequestURI().equalsIgnoreCase("/members") ||
+                        req.getRequestURI().equalsIgnoreCase("/members/")))) {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         } else if (method.equals("PUT") && !(pathInfo != null &&
