@@ -40,7 +40,7 @@ public class BookServlet extends HttpServlet {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         } else if (method.equals("PUT") && !(pathInfo != null &&
-                pathInfo.substring(1).matches("[Vv]\\d{3}[/]?"))) {
+                pathInfo.substring(1).matches("[Bb]\\d{3}[/]?"))) {
             res.sendError(HttpServletResponse.SC_NOT_FOUND, "Book does not exist");
             return;
         }
@@ -49,7 +49,7 @@ public class BookServlet extends HttpServlet {
             Jsonb jsonb = JsonbBuilder.create();
             BookDTO book = jsonb.fromJson(req.getReader(), BookDTO.class);
             if (method.equals("POST") &&
-                    (book.getIsbn() == null || !book.getIsbn().matches("[Vv]\\d{3}"))) {
+                    (book.getIsbn() == null || !book.getIsbn().matches("[Bb]\\d{3}"))) {
                 throw new ValidationException("Invalid ISBN");
             } else if (book.getName() == null || !book.getName().matches("[A-Za-z ]+")) {
                 throw new ValidationException("Invalid Name");
