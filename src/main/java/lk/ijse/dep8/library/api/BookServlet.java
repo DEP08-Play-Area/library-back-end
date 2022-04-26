@@ -62,7 +62,7 @@ public class BookServlet extends HttpServlet {
             }
 
             try (Connection connection = pool.getConnection()) {
-                PreparedStatement stm = connection.prepareStatement("SELECT * FROM book WHERE nic=?");
+                PreparedStatement stm = connection.prepareStatement("SELECT * FROM book WHERE isbn=?");
                 stm.setString(1, book.getIsbn());
                 ResultSet rst = stm.executeQuery();
 
@@ -80,7 +80,7 @@ public class BookServlet extends HttpServlet {
                         res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     }
                 } else {
-                    stm = connection.prepareStatement("INSERT INTO book (nic, name, contact) VALUES (?,?,?)");
+                    stm = connection.prepareStatement("INSERT INTO book (isbn, name, author) VALUES (?,?,?)");
                     stm.setString(1, book.getIsbn());
                     stm.setString(2, book.getName());
                     stm.setString(3, book.getAuthor());
