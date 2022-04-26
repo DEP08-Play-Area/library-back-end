@@ -170,4 +170,39 @@ public class BookServlet extends HttpServlet {
 
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (req.getPathInfo() == null || req.getPathInfo().equals("/")){
+            resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Unable to delete all books yet");
+            return;
+        }else if (req.getPathInfo() != null &&
+                !req.getPathInfo().substring(1).matches("[Bb]\\d{3}[/]?")){
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Book not found");
+            return;
+        }
+
+        String isbn = req.getPathInfo().replaceAll("[/]", "");
+
+        try (Connection connection = pool.getConnection()) {
+            PreparedStatement stm = connection.
+                    prepareStatement("SELECT * FROM book WHERE isbn=?");
+            stm.setString(1, isbn);
+            ResultSet rst = stm.executeQuery();
+
+            if (rst.next()){
+                stm = connection.prepareStatement("DELETE FROM book WHERE isbn=?");
+                stm.setString(1, isbn);
+                if (stm.executeUpdate() != 1){
+                    throw new RuntimeException("Failed to delete the book");
+                }
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }else{
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Book not found");
+            }
+        } catch (SQLException|RuntimeException e) {
+            e.printStackTrace();
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
