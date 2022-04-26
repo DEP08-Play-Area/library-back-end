@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "BookServlet", value = "/books/*")
+@WebServlet(name = "BookServlet", value = "/v1/books/*")
 public class BookServlet extends HttpServlet {
     @Resource(name = "java:comp/env/jdbc/pool4library")
     private volatile DataSource pool;
