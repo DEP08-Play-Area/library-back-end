@@ -104,4 +104,9 @@ public class BookServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doSaveOrUpdate(request,response);
     }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doSaveOrUpdate(req,resp);
+    }
 }
