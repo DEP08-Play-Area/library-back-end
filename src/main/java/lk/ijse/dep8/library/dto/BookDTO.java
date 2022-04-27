@@ -4,16 +4,15 @@ import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class BookDTO implements Serializable {
     private String isbn;
     private String name;
     private String author;
-
     @JsonbTransient
-    private byte[] preview;
-
+    private  byte[] preview;
 
     public BookDTO() {
     }
@@ -55,24 +54,29 @@ public class BookDTO implements Serializable {
         this.author = author;
     }
 
+    public byte[] getPreview() {
+        return preview;
+    }
+
+    @JsonbProperty(value = "preview", nillable = true)
+    public String getPreviewAsDataURI(){
+        return (preview == null)? null: "data:image/*;base64," +
+                Base64.getEncoder().encodeToString(preview);
+    }
+
+    public void setPreview(byte[] preview) {
+        this.preview = preview;
+    }
+
     @Override
     public String toString() {
         return "BookDTO{" +
                 "isbn='" + isbn + '\'' +
                 ", name='" + name + '\'' +
                 ", author='" + author + '\'' +
+                ", preview=" + Arrays.toString(preview) +
                 '}';
     }
-
-    public byte[] getPreview() {
-        return preview;
-    }
-
-    public void setPreview(byte[] preview) {
-        this.preview = preview;
-    }
-    @JsonbProperty(value="preview", nillable = true)
-    public String getPreviewAsDataURI(){
-        return (preview == null)? null: "data:image/*;base64,"+ Base64.getEncoder().encodeToString(preview);
-    }
 }
+
+
