@@ -14,6 +14,8 @@ public class BookDTO implements Serializable {
     @JsonbTransient
     private  byte[] preview;
 
+    private boolean availability;
+
     public BookDTO() {
     }
 
@@ -28,6 +30,14 @@ public class BookDTO implements Serializable {
         this.name = name;
         this.author = author;
         this.preview = preview;
+    }
+
+    public BookDTO(String isbn, String name, String author, byte[] preview, boolean availability) {
+        this.isbn = isbn;
+        this.name = name;
+        this.author = author;
+        this.preview = preview;
+        this.availability = availability;
     }
 
     public String getIsbn() {
@@ -77,6 +87,16 @@ public class BookDTO implements Serializable {
                 ", preview=" + Arrays.toString(preview) +
                 '}';
     }
+
+    public boolean isAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(boolean availability) {
+        this.availability = availability;
+    }
+
+
 }
 
 

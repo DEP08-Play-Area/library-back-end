@@ -1,30 +1,39 @@
 package lk.ijse.dep8.library.dto;
 
 
+import jakarta.json.bind.annotation.JsonbDateFormat;
+
+import java.io.Serializable;
 import java.sql.Date;
 
-public class IssueDTO {
-    private String issueId;
+public class IssueDTO implements Serializable {
+    private int id;
     private String nic;
     private String isbn;
+    @JsonbDateFormat("yyyy-MM-dd")
     private Date date;
 
     public IssueDTO() {
     }
 
-    public IssueDTO(String issueId, String nic, String isbn, Date date) {
-        this.issueId = issueId;
+    public IssueDTO(String nic, String isbn) {
+        this.nic = nic;
+        this.isbn = isbn;
+    }
+
+    public IssueDTO(int id, String nic, String isbn, Date date) {
+        this.id = id;
         this.nic = nic;
         this.isbn = isbn;
         this.date = date;
     }
 
-    public String getIssueId() {
-        return issueId;
+    public int getId() {
+        return id;
     }
 
-    public void setIssueId(String issueId) {
-        this.issueId = issueId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNic() {
@@ -54,7 +63,7 @@ public class IssueDTO {
     @Override
     public String toString() {
         return "IssueDTO{" +
-                "issueId='" + issueId + '\'' +
+                "id=" + id +
                 ", nic='" + nic + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", date=" + date +
