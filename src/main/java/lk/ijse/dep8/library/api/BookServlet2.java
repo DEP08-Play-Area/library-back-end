@@ -170,61 +170,90 @@ public class BookServlet2 extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getPathInfo() != null && !req.getPathInfo().equals("/")) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        if (req.getPathInfo() != null) {
+            if (req.getPathInfo().substring(1).matches("\\d+[/]?")) {
+                searchBook(req, resp);
+                return;
+            } else if (!req.getPathInfo().equals("/")) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            String query = req.getParameter("q");
+            query = "%" + ((query == null) ? "" : query) + "%";
+
+            try (Connection connection = pool.getConnection()) {
+
+                boolean pagination = req.getParameter("page") != null &&
+                        req.getParameter("size") != null;
+                String sql = "SELECT b.*, i.id FROM book b LEFT OUTER JOIN issue i on b.isbn = i.isbn WHERE b.isbn LIKE ? OR b.name LIKE ? OR b.author LIKE ? " + ((pagination) ? "LIMIT ? OFFSET ?" : "");
+                PreparedStatement stm = connection.prepareStatement(sql);
+                PreparedStatement stmCount = connection.prepareStatement("SELECT * FROM book WHERE isbn LIKE ? OR name LIKE ? OR author LIKE ?");
+
+                stm.setString(1, query);
+                stm.setString(2, query);
+                stm.setString(3, query);
+                stmCount.setString(1, query);
+                stmCount.setString(2, query);
+                stmCount.setString(3, query);
+
+                if (pagination) {
+                    int page = Integer.parseInt(req.getParameter("page"));
+                    int size = Integer.parseInt(req.getParameter("size"));
+                    stm.setInt(4, size);
+                    stm.setInt(5, (page - 1) * size);
+                }
+                ResultSet rst = stm.executeQuery();
+
+                List<BookDTO> books = new ArrayList<>();
+
+                while (rst.next()) {
+                    books.add((new BookDTO(
+                            rst.getString("isbn"),
+                            rst.getString("name"),
+                            rst.getString("author"),
+                            rst.getBytes("preview"),
+                            rst.getString("id") == null
+                    )));
+                }
+
+                ResultSet rst2 = stmCount.executeQuery();
+                if (rst2.next()) {
+                    resp.setHeader("X-Count", rst2.getString(1));
+                }
+
+                resp.setContentType("application/json");
+                Jsonb jsonb = JsonbBuilder.create();
+                jsonb.toJson(books, resp.getWriter());
+
+            } catch (SQLException t) {
+                t.printStackTrace();
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
+    }
 
-        String query = req.getParameter("q");
-        query = "%" + ((query == null) ? "" : query) + "%";
-
+    private void searchBook(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
         try (Connection connection = pool.getConnection()) {
-
-            boolean pagination = req.getParameter("page") != null &&
-                    req.getParameter("size") != null;
-            String sql = "SELECT * FROM book WHERE isbn LIKE ? OR name LIKE ? OR author LIKE ? " + ((pagination) ? "LIMIT ? OFFSET ?": "");
-
-            PreparedStatement stm = connection.prepareStatement(sql);
-            PreparedStatement stmCount = connection.prepareStatement("SELECT * FROM book WHERE isbn LIKE ? OR name LIKE ? OR author LIKE ?");
-
-            stm.setString(1, query);
-            stm.setString(2, query);
-            stm.setString(3, query);
-            stmCount.setString(1, query);
-            stmCount.setString(2, query);
-            stmCount.setString(3, query);
-
-            if (pagination){
-                int page = Integer.parseInt(req.getParameter("page"));
-                int size = Integer.parseInt(req.getParameter("size"));
-                stm.setInt(4, size);
-                stm.setInt(5, (page - 1) * size);
-            }
+            PreparedStatement stm = connection.prepareStatement("SELECT b.*, i.id FROM book b LEFT OUTER JOIN issue i on b.isbn = i.isbn WHERE b.isbn = ?");
+            stm.setString(1, req.getPathInfo().replaceAll("[/]", ""));
             ResultSet rst = stm.executeQuery();
-
-            List<BookDTO> books = new ArrayList<>();
-
-            while (rst.next()) {
-                books.add((new BookDTO(
-                        rst.getString("isbn"),
-                        rst.getString("name"),
-                        rst.getString("author"),
-                        rst.getBytes("preview")
-                )));
+            if (!rst.next()){
+                res.sendError(HttpServletResponse.SC_NOT_FOUND, "Book not found");
+                return;
             }
 
-            ResultSet rst2 = stmCount.executeQuery();
-            if (rst2.next()){
-                resp.setHeader("X-Count", rst2.getString(1));
-            }
+            BookDTO book = new BookDTO(rst.getString("isbn"),
+                    rst.getString("name"),
+                    rst.getString("author"),
+                    rst.getBytes("preview"),
+                    rst.getString("id") == null);
 
-            resp.setContentType("application/json");
+            res.setContentType("application/json");
             Jsonb jsonb = JsonbBuilder.create();
-            jsonb.toJson(books, resp.getWriter());
-
-        } catch (SQLException t) {
-            t.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            jsonb.toJson(book, res.getWriter());
+        }catch (SQLException | RuntimeException e){
+            res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }
