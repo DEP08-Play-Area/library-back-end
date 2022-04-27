@@ -35,8 +35,8 @@ public class BookServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
 
         if (method.equals("POST") &&
-                !((req.getServletPath().equalsIgnoreCase("/books") ||
-                        req.getServletPath().equalsIgnoreCase("/books/")))) {
+                !((req.getRequestURI().equalsIgnoreCase("/books") ||
+                        req.getRequestURI().equalsIgnoreCase("/books/")))) {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         } else if (method.equals("PUT") && !(pathInfo != null &&
